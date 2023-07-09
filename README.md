@@ -9,7 +9,10 @@ npm install
 node index.js
 ```
 
-### 依存パッケージ
+### システム構成・依存パッケージ
 
-1. axios
-2. cheerio
+```
+node v18.14.1
+axios
+cheerio
+```
