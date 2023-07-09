@@ -9,7 +9,6 @@ axios
   .then((response) => {
     const $ = cheerio.load(response.data);
     let linkArray = [];
-
     // divタグ内のリンクを取得
     $("div.calendarPurchase").each((i, element) => {
       const link = $(element).find("a").attr("href");
@@ -17,6 +16,7 @@ axios
       if (link) {
         linkArray.push(url + link);
         getEventDay(url + link);
+        console.log("==================================================");
       }
     });
   })
