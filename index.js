@@ -4,20 +4,43 @@ const getEventDay = require("./getEventDay");
 
 const url = "https://yoshimoto.funity.jp/calendar/fukuokagekijyo/";
 
-axios
-  .get(url)
-  .then((response) => {
+async function main() {
+  try {
+    const response = await axios.get(url);
     const $ = cheerio.load(response.data);
-    let linkArray = [];
-    // divタグ内のリンクを取得
-    $("div.calendarPurchase").each((i, element) => {
-      const link = $(element).find("a").attr("href");
-      // 予定があればリンクのボタンが表示されてるので、そのURLを配列に追加
-      if (link) {
-        linkArray.push(url + link);
-        getEventDay(url + link);
-        console.log("==================================================");
-      }
+    let monthlyEvents = [];
+
+    await Promise.all(
+      $("div.calendarPurchase")
+        .map(async (i, element) => {
+          const link = $(element).find("a").attr("href");
+          if (link) {
+            const todayEvent = await getEventDay(url + link);
+            monthlyEvents.push(todayEvent);
+          }
+        })
+        .get()
+    );
+
+    monthlyEvents.map((event) => {
+      const date = Object.keys(event)[0];
+      const formattedDate =
+        date.replace(/-/g, "年").replace(/^(\d+年\d+)/, "$1") + "日のイベント";
+
+      console.log("====================================");
+      console.log(formattedDate);
+
+      // イベントの詳細を表示
+      event[date].forEach((detail) => {
+        console.log("\n" + detail.title.trim()); // タイトルを表示
+        console.log(detail.place); // 会場を表示
+        console.log("詳細");
+        console.log(detail.overvore); // 詳細情報を表示
+      });
     });
-  })
-  .catch(console.error);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+main();
